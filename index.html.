@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prova audio</title>
+<style>
+  body{font-family:-apple-system,Helvetica,Arial,sans-serif;margin:0;padding:20px;background:#f5f5f2;color:#222}
+  h1{font-size:20px;margin:0 0 16px}
+  button{display:block;width:100%;padding:16px;margin:10px 0;font-size:17px;border:0;border-radius:12px;color:#fff;background:#1f6feb}
+  button:disabled{background:#aaa}
+  #rec.attivo{background:#d1242f}
+  audio{width:100%;margin:10px 0}
+  .box{background:#fff;border-radius:12px;padding:14px;margin:14px 0;font-size:14px}
+  #log{white-space:pre-wrap;font-family:Menlo,monospace;font-size:12px}
+</style>
+</head>
+<body>
+<h1>Prova audio</h1>
+
+<div class="box"><b>Registra dalla pagina</b>
+  <button id="rec">● Registra</button>
+  <audio id="player" controls></audio>
+  <button id="salva" disabled>Salva su Drive</button>
+</div>
+
+<div class="box"><b>Risultato</b><div id="log"></div></div>
+
+<script>
+var URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbww5UlcHMvTcSMo8oV8h9gzvPezBzlPija7P_K6Xh5WlXT1htxvmUWkWv4nUElRFHBBqw/exec';
+
+var log = function(t){ document.getElementById('log').textContent += t + '\n'; };
+var mediaRec, pezzi = [], ultimo = null;
+
+log('Microfono disponibile: ' + !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia));
+log('MediaRecorder disponibile: ' + (typeof MediaRecorder !== 'undefined'));
+
+function scegliFormato(){
+  var f = ['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+  for (var i=0;i<f.length;i++) if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(f[i])) return f[i];
+  return '';
+}
+
+document.getElementById('rec').onclick = async function(){
+  var b = this;
+  if (mediaRec && mediaRec.state === 'recording'){ mediaRec.stop(); return; }
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    var formato = scegliFormato();
+    mediaRec = formato ? new MediaRecorder(stream,{mimeType:formato}) : new MediaRecorder(stream);
+    pezzi = [];
+    mediaRec.ondataavailable = function(e){ if (e.data.size) pezzi.push(e.data); };
+    mediaRec.onstop = function(){
+      stream.getTracks().forEach(function(t){t.stop();});
+      ultimo = new Blob(pezzi,{type: mediaRec.mimeType || 'audio/mp4'});
+      document.getElementById('player').src = URL.createObjectURL(ultimo);
+      document.getElementById('salva').disabled = false;
+      b.textContent = '● Registra'; b.classList.remove('attivo');
+      log('OK registrazione: ' + Math.round(ultimo.size/1024) + ' KB, formato ' + ultimo.type);
+    };
+    mediaRec.start();
+    b.textContent = '■ Stop'; b.classList.add('attivo');
+    log('Registrazione in corso...');
+  } catch(err){
+    log('ERRORE microfono: ' + err.name + ' – ' + err.message);
+  }
+};
+
+document.getElementById('salva').onclick = function(){
+  if (!ultimo) return;
+  log('Invio a Drive...');
+  var r = new FileReader();
+  r.onload = function(){
+    fetch(URL_SCRIPT, {
+      method: 'POST',
+      body: JSON.stringify({audio: r.result.split(',')[1], mime: ultimo.type || 'audio/mp4'})
+    })
+    .then(function(res){ return res.json(); })
+    .then(function(d){ log(d.ok ? 'OK salvato su Drive: ' + d.nome : 'ERRORE salvataggio: ' + d.errore); })
+    .catch(function(e){ log('ERRORE invio: ' + e.message); });
+  };
+  r.readAsDataURL(ultimo);
+};
+</script>
+</body>
+</html>
