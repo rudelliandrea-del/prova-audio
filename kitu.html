@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Informe semanal</title>
+<style>
+  :root{--blu:#1f6feb;--bg:#f4f4f1;--testo:#1d1d1f;--grigio:#8a8a8e;--bordo:#e2e2e0;--rosso:#d1242f;--verde:#1a7f37;--arancio:#e8780c}
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Helvetica,Arial,sans-serif;margin:0;padding:16px 16px 40px;background:var(--bg);color:var(--testo);font-size:16px}
+  h1{font-size:22px;margin:4px 0 2px}
+  .sotto{color:var(--grigio);font-size:14px;margin-bottom:14px}
+  .card{background:#fff;border-radius:14px;padding:14px;margin:12px 0}
+  .card h2{font-size:15px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em;color:#555}
+  label.t{display:block;font-weight:600;margin:14px 0 6px}
+  label.t.prima{margin-top:0}
+  input[type=text],input[type=date],textarea{width:100%;font-size:16px;padding:11px;border:1px solid var(--bordo);border-radius:10px;font-family:inherit;color:var(--testo);background:#fff}
+  textarea{min-height:64px;resize:vertical}
+  .sett{display:flex;gap:8px;align-items:center}
+  .sett input{flex:1;min-width:0}
+  .nascosto{display:none!important}
+  .riep{background:#f7f9fc}
+  .sub{font-size:12px;font-weight:700;color:#555;letter-spacing:.05em;margin:4px 0 6px}
+  .stat{display:flex;gap:8px;margin-bottom:8px}
+  .stat div{flex:1;background:#fff;border:1px solid var(--bordo);border-radius:10px;padding:8px;text-align:center}
+  .stat b{display:block;font-size:20px}.stat span{font-size:12px;color:var(--grigio)}
+  .sess{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--bordo);font-size:14px}
+  .sess .g{color:var(--grigio);font-size:12px}
+  .mini{width:70px;height:6px;border-radius:3px;background:#e3e3e3;position:relative;flex:none}
+  .mini i{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:var(--blu)}
+  .tag{font-size:12px;color:var(--rosso);font-weight:600;text-align:right}
+  .vuoto{color:var(--grigio);font-size:14px;padding:6px 0}
+  .cmp{font-size:13px;color:var(--grigio);margin-top:8px}
+  .allerta{background:#fdecec;color:var(--rosso);border-radius:10px;padding:10px;font-size:14px;margin-top:8px;font-weight:600}
+  .barra{margin:6px 0 2px}
+  .barra input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:10px;border-radius:5px;background:#fde9d6;outline:none}
+  .barra input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--arancio);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+  .barra.vergine input[type=range]::-webkit-slider-thumb{background:#bbb}
+  .estremi{display:flex;justify-content:space-between;color:var(--grigio);font-size:13px}
+  .av{font-size:13px;color:var(--grigio)}
+  .rec{width:100%;border:0;border-radius:12px;padding:15px;font-size:17px;color:#fff;background:var(--blu)}
+  .rec.attivo{background:var(--rosso)}
+  audio{width:100%;margin-top:10px}
+  .btn{border:0;border-radius:10px;padding:11px 14px;font-size:15px;background:#e8e8e6;color:var(--testo)}
+  .pt{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--bordo);border-radius:10px;padding:11px 12px;margin:8px 0;font-size:15px}
+  .pt.arch span:first-child{text-decoration:line-through;color:var(--grigio)}
+  .arch-b{font-size:13px;color:var(--grigio);border:1px solid var(--bordo);border-radius:8px;padding:5px 9px;background:#fff;flex:none}
+  .agg{display:flex;gap:8px;margin-top:8px}.agg input{flex:1}
+  #invia{width:100%;border:0;border-radius:14px;padding:17px;font-size:18px;font-weight:600;color:#fff;background:var(--verde);margin-top:6px}
+  #invia:disabled{background:#9bbfa4}
+  #esito{margin-top:12px;font-size:15px;text-align:center}
+  .err{color:var(--rosso)}.ok{color:var(--verde);font-weight:600}
+  #blocco{display:none;text-align:center;padding:40px 10px;color:var(--rosso)}
+</style>
+</head>
+<body>
+<div id="blocco">Enlace no válido.<br>Usa el enlace personal que te ha enviado Andrea.</div>
+
+<div id="app">
+<h1>Informe semanal</h1>
+<div class="sotto">Filippo · Future Padel Academy</div>
+
+<div class="card">
+  <label class="t prima">Semana</label>
+  <div class="sett"><input type="date" id="desde"><span>–</span><input type="date" id="hasta"></div>
+</div>
+
+<div class="card riep">
+  <h2>La semana de Filippo</h2>
+  <div id="riep"><div class="vuoto">Cargando…</div></div>
+</div>
+
+<div class="card">
+  <label class="t prima">Objetivo de la semana</label>
+  <textarea id="objetivo"></textarea>
+  <label class="t">Técnica</label>
+  <textarea id="tecnica"></textarea>
+  <label class="t">Táctica</label>
+  <textarea id="tactica"></textarea>
+</div>
+
+<div class="card">
+  <label class="t prima">Actitud</label>
+  <div class="barra vergine" id="bActitud"><input type="range" min="0" max="100" value="50"></div>
+  <div class="estremi"><span>baja</span><span>excelente</span></div>
+
+  <label class="t">Comprensión: entiende lo que se trabaja</label>
+  <div class="barra vergine" id="bComp"><input type="range" min="0" max="100" value="50"></div>
+  <div class="estremi"><span>poco</span><span>totalmente</span></div>
+
+  <label class="t">Aplicación: lo lleva al juego</label>
+  <div class="barra vergine" id="bApl"><input type="range" min="0" max="100" value="50"></div>
+  <div class="estremi"><span>poco</span><span>siempre</span></div>
+  <div class="av" style="margin-top:8px">Mueve las barras hasta donde creas.</div>
+</div>
+
+<div class="card">
+  <h2>Nota de audio</h2>
+  <button type="button" class="rec" id="rec">● Grabar nota</button>
+  <audio id="player" controls class="nascosto"></audio>
+  <button type="button" class="btn nascosto" id="cancAudio" style="margin-top:8px">Borrar nota</button>
+</div>
+
+<div class="card">
+  <h2>Próximos puntos de trabajo</h2>
+  <div class="av" style="margin:-4px 0 8px">Memoria de lo que hay que trabajar en las próximas sesiones. Se mantiene de una semana a otra.</div>
+  <div id="puntos"></div>
+  <div class="agg"><input type="text" id="nuevoPunto" placeholder="Añadir un punto"><button type="button" class="btn" id="addPunto">Añadir</button></div>
+</div>
+
+<button type="button" id="invia">Enviar informe</button>
+<div id="esito"></div>
+</div>
+
+<script>
+var URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbww5UlcHMvTcSMo8oV8h9gzvPezBzlPija7P_K6Xh5WlXT1htxvmUWkWv4nUElRFHBBqw/exec';
+var K = new URLSearchParams(location.search).get('k') || '';
+var $ = function(id){ return document.getElementById(id); };
+var audioBlob = null, mediaRec = null, pezzi = [];
+var puntosNuevos = [], puntosArchivados = [];
+
+function blocca(){ $('app').style.display = 'none'; $('blocco').style.display = 'block'; }
+if (!K) blocca();
+
+// Semana: de lunes a domingo de la semana actual
+function iso(d){ var x = new Date(d); x.setMinutes(x.getMinutes() - x.getTimezoneOffset()); return x.toISOString().slice(0,10); }
+(function(){
+  var h = new Date(); var dia = (h.getDay() + 6) % 7;
+  var lun = new Date(h); lun.setDate(h.getDate() - dia);
+  var dom = new Date(lun); dom.setDate(lun.getDate() + 6);
+  $('desde').value = iso(lun); $('hasta').value = iso(dom);
+})();
+
+var TIPO = {'individuale':'Individual','gruppo':'Grupo','partita assistita':'Partido asistido','fisico':'Físico'};
+var MOM = {'mattina':'mañana','pomeriggio':'tarde'};
+var ZONA = {'caviglia':'tobillo','ginocchio':'rodilla','gambe':'piernas','schiena':'espalda','spalla':'hombro','gomito':'codo','polso':'muñeca','altro':'otro'};
+var DIAS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+function ore(durata){
+  var s = String(durata).toLowerCase(), m;
+  if ((m = s.match(/(\d+)\s*h\s*(\d+)?/))) return (+m[1]) + (m[2] ? (+m[2])/60 : 0);
+  if ((m = s.match(/(\d+)\s*min/))) return (+m[1])/60;
+  return 0;
+}
+function fmtOre(h){ var i = Math.floor(h), m = Math.round((h - i) * 60); return i + 'h' + (m ? (m < 10 ? '0' : '') + m : ''); }
+function esc(t){ return String(t == null ? '' : t).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+function bloccoSessioni(titolo, lista){
+  var h = lista.reduce(function(a,x){ return a + ore(x.durata); }, 0);
+  var mol = lista.filter(function(x){ return x.fastidi === 'sì'; }).length;
+  var html = '<div class="sub">' + titolo + '</div>' +
+    '<div class="stat"><div><b>' + lista.length + '</b><span>sesiones</span></div><div><b>' + fmtOre(h) + '</b><span>horas</span></div><div><b>' + mol + '</b><span>con molestias</span></div></div>';
+  if (!lista.length) return html + '<div class="vuoto">Ninguna sesión registrada.</div>';
+  lista.forEach(function(x){
+    var d = new Date(x.data + 'T12:00:00');
+    var info = [x.allenatore, x.compagni].filter(Boolean).join(' · ');
+    html += '<div class="sess"><div>' + DIAS[d.getDay()] + ' ' + d.getDate() + ' · ' + (MOM[x.momento] || x.momento) + ' · ' + (TIPO[x.tipo] || x.tipo) + ' ' + esc(x.durata) +
+      (info ? '<div class="g">' + esc(info) + '</div>' : '') + '</div><div><div class="mini"><i style="width:' + (+x.impegno || 0) + '%"></i></div>' +
+      (x.fastidi === 'sì' ? '<div class="tag">' + esc(ZONA[x.zona] || x.zona || 'molestia') + '</div>' : '') + '</div></div>';
+  });
+  return html;
+}
+
+function mostraRiepilogo(ses){
+  var pista = ses.filter(function(x){ return x.tipo !== 'fisico'; });
+  var fis = ses.filter(function(x){ return x.tipo === 'fisico'; });
+  var html = bloccoSessioni('EN PISTA', pista) + '<div style="height:10px"></div>' + bloccoSessioni('FÍSICO', fis);
+  if (ses.length) html += '<div class="cmp">La barra azul es el compromiso que se da Filippo.</div>';
+  var conta = {};
+  ses.forEach(function(x){ if (x.fastidi === 'sì' && x.zona) conta[x.zona] = (conta[x.zona] || 0) + 1; });
+  Object.keys(conta).forEach(function(z){
+    if (conta[z] >= 2){ var n = ZONA[z] || z; html += '<div class="allerta">⚠ ' + n.charAt(0).toUpperCase() + n.slice(1) + ' señalado ' + conta[z] + ' veces esta semana</div>'; }
+  });
+  $('riep').innerHTML = html;
+}
+
+function mostraPunti(lista){
+  $('puntos').innerHTML = '';
+  lista.forEach(function(p){ aggiungiPuntoUI(p, false); });
+}
+function aggiungiPuntoUI(testo, nuovo){
+  var r = document.createElement('div'); r.className = 'pt';
+  var t = document.createElement('span'); t.textContent = testo;
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'arch-b'; b.textContent = 'Archivar';
+  b.onclick = function(){
+    if (nuovo){ puntosNuevos = puntosNuevos.filter(function(x){ return x !== testo; }); r.remove(); return; }
+    var on = r.classList.toggle('arch');
+    b.textContent = on ? 'Recuperar' : 'Archivar';
+    if (on) puntosArchivados.push(testo); else puntosArchivados = puntosArchivados.filter(function(x){ return x !== testo; });
+  };
+  r.appendChild(t); r.appendChild(b); $('puntos').appendChild(r);
+}
+$('addPunto').onclick = function(){
+  var p = $('nuevoPunto').value.trim(); if (!p) return;
+  var gia = [].some.call($('puntos').querySelectorAll('.pt span:first-child'), function(s){ return s.textContent.toLowerCase() === p.toLowerCase(); });
+  if (!gia){ puntosNuevos.push(p); aggiungiPuntoUI(p, true); }
+  $('nuevoPunto').value = '';
+};
+
+function carica(){
+  if (!K) return;
+  $('riep').innerHTML = '<div class="vuoto">Cargando…</div>';
+  fetch(URL_SCRIPT + '?k=' + encodeURIComponent(K) + '&desde=' + $('desde').value + '&hasta=' + $('hasta').value)
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (!d.ok){ blocca(); return; }
+      mostraRiepilogo(d.sesiones || []);
+      if (!$('puntos').children.length) mostraPunti(d.puntos || []);
+    })
+    .catch(function(){ $('riep').innerHTML = '<div class="vuoto err">No se ha podido cargar la semana. Revisa la conexión.</div>'; });
+}
+$('desde').onchange = carica; $('hasta').onchange = carica;
+carica();
+
+['bActitud','bComp','bApl'].forEach(function(id){
+  $(id).querySelector('input').addEventListener('input', function(){ $(id).classList.remove('vergine'); });
+});
+
+// Audio
+function formato(){
+  var f = ['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+  for (var i=0;i<f.length;i++) if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(f[i])) return f[i];
+  return '';
+}
+$('rec').onclick = async function(){
+  var b = this;
+  if (mediaRec && mediaRec.state === 'recording'){ mediaRec.stop(); return; }
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    var f = formato();
+    mediaRec = f ? new MediaRecorder(stream, {mimeType:f}) : new MediaRecorder(stream);
+    pezzi = [];
+    mediaRec.ondataavailable = function(e){ if (e.data.size) pezzi.push(e.data); };
+    mediaRec.onstop = function(){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      audioBlob = new Blob(pezzi, {type: mediaRec.mimeType || 'audio/mp4'});
+      $('player').src = URL.createObjectURL(audioBlob);
+      $('player').classList.remove('nascosto'); $('cancAudio').classList.remove('nascosto');
+      b.textContent = '● Grabar de nuevo'; b.classList.remove('attivo');
+    };
+    mediaRec.start();
+    b.textContent = '■ Parar'; b.classList.add('attivo');
+  } catch(err){
+    $('esito').innerHTML = '<span class="err">Micrófono no disponible: abre el enlace en Safari o Chrome y permite el micrófono.</span>';
+  }
+};
+$('cancAudio').onclick = function(){
+  audioBlob = null; $('player').classList.add('nascosto'); this.classList.add('nascosto');
+  $('rec').textContent = '● Grabar nota';
+};
+function base64(blob){
+  return new Promise(function(ok){ var r = new FileReader(); r.onload = function(){ ok(r.result.split(',')[1]); }; r.readAsDataURL(blob); });
+}
+
+// Envío
+$('invia').onclick = async function(){
+  var esito = $('esito'), errori = [];
+  if (!$('desde').value || !$('hasta').value) errori.push('las fechas de la semana');
+  if ($('bActitud').classList.contains('vergine')) errori.push('mover la barra Actitud');
+  if ($('bComp').classList.contains('vergine')) errori.push('mover la barra Comprensión');
+  if ($('bApl').classList.contains('vergine')) errori.push('mover la barra Aplicación');
+  if (mediaRec && mediaRec.state === 'recording') errori.push('parar la grabación');
+  if (errori.length){ esito.innerHTML = '<span class="err">Falta: ' + errori.join(', ') + '.</span>'; return; }
+
+  var d = {
+    k: K, tipoEnvio: 'informe', desde: $('desde').value, hasta: $('hasta').value,
+    objetivo: $('objetivo').value.trim(), tecnica: $('tecnica').value.trim(), tactica: $('tactica').value.trim(),
+    actitud: +$('bActitud').querySelector('input').value,
+    comprension: +$('bComp').querySelector('input').value,
+    aplicacion: +$('bApl').querySelector('input').value,
+    puntosNuevos: puntosNuevos, puntosArchivados: puntosArchivados
+  };
+  var btn = this; btn.disabled = true; btn.textContent = 'Enviando…'; esito.textContent = '';
+  try {
+    if (audioBlob){ d.audio = await base64(audioBlob); d.mime = audioBlob.type || 'audio/mp4'; }
+    var r = await fetch(URL_SCRIPT, {method:'POST', body: JSON.stringify(d)});
+    var res = await r.json();
+    if (!res.ok) throw new Error(res.errore || 'error');
+    esito.innerHTML = '<span class="ok">Informe enviado. ¡Gracias!</span>';
+    ['objetivo','tecnica','tactica'].forEach(function(id){ $(id).value = ''; });
+    ['bActitud','bComp','bApl'].forEach(function(id){ $(id).classList.add('vergine'); $(id).querySelector('input').value = 50; });
+    $('cancAudio').onclick();
+    puntosNuevos = []; puntosArchivados = []; $('puntos').innerHTML = ''; carica();
+    window.scrollTo(0,0);
+  } catch(e){
+    esito.innerHTML = '<span class="err">No se ha podido enviar: ' + e.message + '. Inténtalo de nuevo.</span>';
+  }
+  btn.disabled = false; btn.textContent = 'Enviar informe';
+};
+</script>
+</body>
+</html>

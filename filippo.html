@@ -102,7 +102,11 @@
   <label class="t">Come mi sento</label>
   <div class="barra vergine" id="bSento"><input type="range" min="0" max="100" value="50"></div>
   <div class="estremi"><span>sfinito</span><span>fresco</span></div>
-  <div class="avviso">Sposta le due barre fin dove senti che è andata.</div>
+
+  <label class="t">Ho capito il lavoro di oggi</label>
+  <div class="barra vergine" id="bCap"><input type="range" min="0" max="100" value="50"></div>
+  <div class="estremi"><span>poco</span><span>tutto</span></div>
+  <div class="avviso">Sposta le barre fin dove senti che è andata.</div>
 
   <label class="t">Fastidi</label>
   <div class="duo" id="fastidi">
@@ -175,7 +179,7 @@ singolo('durata', function(v){ $('durataAltro').classList.toggle('nascosto', v !
 singolo('fastidi', function(v){ $('fastidiDett').classList.toggle('nascosto', v !== 'sì'); });
 
 // Barre: diventano "toccate" al primo movimento
-['bImpegno','bSento'].forEach(function(id){
+['bImpegno','bSento','bCap'].forEach(function(id){
   $(id).querySelector('input').addEventListener('input', function(){ $(id).classList.remove('vergine'); });
 });
 
@@ -256,6 +260,7 @@ $('invia').onclick = async function(){
   if (!valore('momento')) errori.push('scegli mattina o pomeriggio');
   if ($('bImpegno').classList.contains('vergine')) errori.push('sposta la barra Impegno');
   if ($('bSento').classList.contains('vergine')) errori.push('sposta la barra Come mi sento');
+  if ($('bCap').classList.contains('vergine')) errori.push('sposta la barra Ho capito');
   if (valore('fastidi') === 'sì' && !valore('zona')) errori.push('indica dove hai il fastidio');
   var all = $('allenatore').value === '__nuovo' ? $('aggAll').value.trim() : $('allenatore').value;
   if (!all) errori.push("scrivi il nome dell'allenatore");
@@ -269,6 +274,7 @@ $('invia').onclick = async function(){
     compagni: [].filter.call($('compagni').children, function(c){ return c.classList.contains('on'); }).map(function(c){ return c.dataset.v; }),
     impegno: +$('bImpegno').querySelector('input').value,
     comeMiSento: +$('bSento').querySelector('input').value,
+    capito: +$('bCap').querySelector('input').value,
     fastidi: valore('fastidi'), zona: valore('fastidi') === 'sì' ? valore('zona') : '',
     notaFastidio: valore('fastidi') === 'sì' ? $('notaFastidio').value.trim() : '',
     lavorato: $('lavorato').value.trim(), bene: $('bene').value.trim(), migliorare: $('migliorare').value.trim(),
@@ -291,7 +297,7 @@ $('invia').onclick = async function(){
 function azzera(){
   ['lavorato','bene','migliorare','eserciziTesto','notaFastidio','durataAltro','aggAll'].forEach(function(id){ $(id).value = ''; });
   [].forEach.call(document.querySelectorAll('#momento .chip, #zona .chip, #compagni .chip'), function(c){ c.classList.remove('on'); });
-  ['bImpegno','bSento'].forEach(function(id){ $(id).classList.add('vergine'); $(id).querySelector('input').value = 50; });
+  ['bImpegno','bSento','bCap'].forEach(function(id){ $(id).classList.add('vergine'); $(id).querySelector('input').value = 50; });
   $('fastidi').querySelectorAll('.chip')[0].click();
   $('tipo').querySelector('[data-v="gruppo"]').click();
   $('durata').querySelector('[data-v="1h30"]').click();
