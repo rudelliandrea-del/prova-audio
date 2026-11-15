@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Registro allenamenti</title>
+<style>
+  :root{--blu:#1f6feb;--bg:#f4f4f1;--card:#fff;--testo:#1d1d1f;--grigio:#8a8a8e;--bordo:#e2e2e0;--rosso:#d1242f;--verde:#1a7f37}
+  *{box-sizing:border-box}
+  body{font-family:-apple-system,Helvetica,Arial,sans-serif;margin:0;padding:16px 16px 40px;background:var(--bg);color:var(--testo);font-size:16px}
+  h1{font-size:22px;margin:4px 0 2px}
+  .sotto{color:var(--grigio);font-size:14px;margin-bottom:14px}
+  .card{background:var(--card);border-radius:14px;padding:14px;margin:12px 0}
+  .card h2{font-size:15px;margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em;color:#555}
+  label.t{display:block;font-weight:600;margin:12px 0 6px}
+  label.t:first-of-type{margin-top:0}
+  input[type=date],input[type=text],select,textarea{width:100%;font-size:16px;padding:11px;border:1px solid var(--bordo);border-radius:10px;background:#fff;color:var(--testo);font-family:inherit}
+  textarea{min-height:64px;resize:vertical}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{border:1px solid var(--bordo);background:#fff;border-radius:999px;padding:10px 14px;font-size:15px;color:var(--testo)}
+  .chip.on{background:var(--blu);border-color:var(--blu);color:#fff}
+  .duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .duo .chip{border-radius:10px;padding:14px;text-align:center;font-size:16px}
+  .nascosto{display:none!important}
+  .riga-agg{display:flex;gap:8px;margin-top:8px}
+  .riga-agg input{flex:1}
+  .btn{border:0;border-radius:10px;padding:11px 14px;font-size:15px;background:#e8e8e6;color:var(--testo)}
+  .barra{margin:6px 0 2px}
+  .barra input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:10px;border-radius:5px;background:#dfe7f5;outline:none}
+  .barra input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:var(--blu);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+  .barra.vergine input[type=range]::-webkit-slider-thumb{background:#bbb}
+  .estremi{display:flex;justify-content:space-between;color:var(--grigio);font-size:13px}
+  .avviso{font-size:13px;color:var(--grigio);margin-top:4px}
+  .privato{background:#fff8e6;border:1px solid #f0d68a}
+  .rec{width:100%;border:0;border-radius:12px;padding:15px;font-size:17px;color:#fff;background:var(--blu)}
+  .rec.attivo{background:var(--rosso)}
+  audio{width:100%;margin-top:10px}
+  #invia{width:100%;border:0;border-radius:14px;padding:17px;font-size:18px;font-weight:600;color:#fff;background:var(--verde);margin-top:6px}
+  #invia:disabled{background:#9bbfa4}
+  #esito{margin-top:12px;font-size:15px;text-align:center}
+  .err{color:var(--rosso)}
+  .ok{color:var(--verde);font-weight:600}
+  #blocco{display:none;text-align:center;padding:40px 10px;color:var(--rosso)}
+</style>
+</head>
+<body>
+<div id="blocco">Link non valido.<br>Usa il link personale che ti ha mandato Andrea.</div>
+
+<div id="app">
+<h1>Registro allenamenti</h1>
+<div class="sotto">Una scheda per ogni sessione</div>
+
+<div class="card">
+  <h2>Sessione</h2>
+  <label class="t">Data</label>
+  <input type="date" id="data">
+
+  <label class="t">Momento</label>
+  <div class="duo" id="momento">
+    <button type="button" class="chip" data-v="mattina">Mattina</button>
+    <button type="button" class="chip" data-v="pomeriggio">Pomeriggio</button>
+  </div>
+
+  <label class="t">Tipo</label>
+  <div class="chips" id="tipo">
+    <button type="button" class="chip" data-v="individuale">Individuale</button>
+    <button type="button" class="chip on" data-v="gruppo">Gruppo</button>
+    <button type="button" class="chip" data-v="partita assistita">Partita assistita</button>
+    <button type="button" class="chip" data-v="fisico">Fisico</button>
+  </div>
+
+  <label class="t">Durata</label>
+  <div class="chips" id="durata">
+    <button type="button" class="chip" data-v="1h">1h</button>
+    <button type="button" class="chip on" data-v="1h30">1h30</button>
+    <button type="button" class="chip" data-v="2h">2h</button>
+    <button type="button" class="chip" data-v="altro">Altro</button>
+  </div>
+  <input type="text" id="durataAltro" class="nascosto" placeholder="Es. 45 min" style="margin-top:8px">
+
+  <label class="t">Allenatore</label>
+  <select id="allenatore"></select>
+  <div class="riga-agg nascosto" id="aggAllRiga">
+    <input type="text" id="aggAll" placeholder="Nome nuovo allenatore">
+  </div>
+
+  <label class="t">Compagni</label>
+  <div class="chips" id="compagni"></div>
+  <div class="riga-agg">
+    <input type="text" id="aggComp" placeholder="Aggiungi un compagno">
+    <button type="button" class="btn" id="aggCompBtn">Aggiungi</button>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Come è andata</h2>
+  <label class="t">Impegno</label>
+  <div class="barra vergine" id="bImpegno"><input type="range" min="0" max="100" value="50"></div>
+  <div class="estremi"><span>poco</span><span>massimo</span></div>
+
+  <label class="t">Come mi sento</label>
+  <div class="barra vergine" id="bSento"><input type="range" min="0" max="100" value="50"></div>
+  <div class="estremi"><span>sfinito</span><span>fresco</span></div>
+  <div class="avviso">Sposta le due barre fin dove senti che è andata.</div>
+
+  <label class="t">Fastidi</label>
+  <div class="duo" id="fastidi">
+    <button type="button" class="chip on" data-v="no">No</button>
+    <button type="button" class="chip" data-v="sì">Sì</button>
+  </div>
+  <div id="fastidiDett" class="nascosto">
+    <label class="t">Dove</label>
+    <div class="chips" id="zona">
+      <button type="button" class="chip" data-v="caviglia">Caviglia</button>
+      <button type="button" class="chip" data-v="ginocchio">Ginocchio</button>
+      <button type="button" class="chip" data-v="gambe">Gambe</button>
+      <button type="button" class="chip" data-v="schiena">Schiena</button>
+      <button type="button" class="chip" data-v="spalla">Spalla</button>
+      <button type="button" class="chip" data-v="gomito">Gomito</button>
+      <button type="button" class="chip" data-v="polso">Polso</button>
+      <button type="button" class="chip" data-v="altro">Altro</button>
+    </div>
+    <input type="text" id="notaFastidio" placeholder="Descrivi in breve" style="margin-top:8px">
+  </div>
+</div>
+
+<div class="card">
+  <h2>Riflessione</h2>
+  <label class="t">Ho lavorato su</label>
+  <textarea id="lavorato"></textarea>
+  <label class="t">È andato bene</label>
+  <textarea id="bene"></textarea>
+  <label class="t">Devo migliorare</label>
+  <textarea id="migliorare"></textarea>
+</div>
+
+<div class="card privato">
+  <h2>Esercizi svolti</h2>
+  <div class="avviso" style="margin:-4px 0 10px">Questa parte la vede solo Andrea. Racconta gli esercizi che avete fatto.</div>
+  <button type="button" class="rec" id="rec">● Registra un vocale</button>
+  <audio id="player" controls class="nascosto"></audio>
+  <button type="button" class="btn nascosto" id="cancAudio" style="margin-top:8px">Cancella vocale</button>
+  <label class="t">oppure scrivi</label>
+  <textarea id="eserciziTesto"></textarea>
+</div>
+
+<button type="button" id="invia">Invia</button>
+<div id="esito"></div>
+</div>
+
+<script>
+var URL_SCRIPT = 'https://script.google.com/macros/s/AKfycbww5UlcHMvTcSMo8oV8h9gzvPezBzlPija7P_K6Xh5WlXT1htxvmUWkWv4nUElRFHBBqw/exec';
+var K = new URLSearchParams(location.search).get('k') || '';
+var $ = function(id){ return document.getElementById(id); };
+var audioBlob = null, mediaRec = null, pezzi = [];
+
+if (!K) { $('app').style.display = 'none'; $('blocco').style.display = 'block'; }
+
+function oggi(){ var d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); }
+$('data').value = oggi();
+
+// Scelta singola
+function singolo(id, onChange){
+  $(id).addEventListener('click', function(e){
+    var b = e.target.closest('.chip'); if (!b) return;
+    [].forEach.call($(id).querySelectorAll('.chip'), function(c){ c.classList.remove('on'); });
+    b.classList.add('on'); if (onChange) onChange(b.dataset.v);
+  });
+}
+function valore(id){ var b = $(id).querySelector('.chip.on'); return b ? b.dataset.v : ''; }
+
+singolo('momento'); singolo('tipo'); singolo('zona');
+singolo('durata', function(v){ $('durataAltro').classList.toggle('nascosto', v !== 'altro'); });
+singolo('fastidi', function(v){ $('fastidiDett').classList.toggle('nascosto', v !== 'sì'); });
+
+// Barre: diventano "toccate" al primo movimento
+['bImpegno','bSento'].forEach(function(id){
+  $(id).querySelector('input').addEventListener('input', function(){ $(id).classList.remove('vergine'); });
+});
+
+// Allenatori
+function riempiAllenatori(lista){
+  var s = $('allenatore'); s.innerHTML = '';
+  if (lista.indexOf('Kitu') === -1) lista.unshift('Kitu');
+  lista.forEach(function(n){ var o = document.createElement('option'); o.textContent = n; s.appendChild(o); });
+  var o = document.createElement('option'); o.value = '__nuovo'; o.textContent = '+ Aggiungi nuovo'; s.appendChild(o);
+  s.value = 'Kitu';
+}
+$('allenatore').addEventListener('change', function(){ $('aggAllRiga').classList.toggle('nascosto', this.value !== '__nuovo'); });
+
+// Compagni (scelta multipla)
+function chipCompagno(n, acceso){
+  var b = document.createElement('button'); b.type = 'button'; b.className = 'chip' + (acceso ? ' on' : '');
+  b.textContent = n; b.dataset.v = n; b.onclick = function(){ b.classList.toggle('on'); };
+  $('compagni').appendChild(b);
+}
+$('aggCompBtn').onclick = function(){
+  var n = $('aggComp').value.trim(); if (!n) return;
+  var gia = [].some.call($('compagni').children, function(c){ return c.dataset.v.toLowerCase() === n.toLowerCase(); });
+  if (!gia) chipCompagno(n, true);
+  $('aggComp').value = '';
+};
+
+// Carica elenchi dal foglio
+riempiAllenatori(['Kitu']);
+if (K) fetch(URL_SCRIPT + '?k=' + encodeURIComponent(K))
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d.ok){ $('app').style.display = 'none'; $('blocco').style.display = 'block'; return; }
+    riempiAllenatori(d.allenatori || []);
+    $('compagni').innerHTML = ''; (d.compagni || []).forEach(function(n){ chipCompagno(n, false); });
+  })
+  .catch(function(){ $('esito').innerHTML = '<span class="err">Elenchi non caricati: controlla la connessione.</span>'; });
+
+// Registrazione vocale
+function formato(){
+  var f = ['audio/mp4','audio/webm;codecs=opus','audio/webm'];
+  for (var i=0;i<f.length;i++) if (MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(f[i])) return f[i];
+  return '';
+}
+$('rec').onclick = async function(){
+  var b = this;
+  if (mediaRec && mediaRec.state === 'recording'){ mediaRec.stop(); return; }
+  try {
+    var stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    var f = formato();
+    mediaRec = f ? new MediaRecorder(stream, {mimeType:f}) : new MediaRecorder(stream);
+    pezzi = [];
+    mediaRec.ondataavailable = function(e){ if (e.data.size) pezzi.push(e.data); };
+    mediaRec.onstop = function(){
+      stream.getTracks().forEach(function(t){ t.stop(); });
+      audioBlob = new Blob(pezzi, {type: mediaRec.mimeType || 'audio/mp4'});
+      $('player').src = URL.createObjectURL(audioBlob);
+      $('player').classList.remove('nascosto'); $('cancAudio').classList.remove('nascosto');
+      b.textContent = '● Registra di nuovo'; b.classList.remove('attivo');
+    };
+    mediaRec.start();
+    b.textContent = '■ Stop'; b.classList.add('attivo');
+  } catch(err){
+    $('esito').innerHTML = '<span class="err">Microfono non disponibile: apri il link in Safari e consenti il microfono.</span>';
+  }
+};
+$('cancAudio').onclick = function(){
+  audioBlob = null; $('player').classList.add('nascosto'); this.classList.add('nascosto');
+  $('rec').textContent = '● Registra un vocale';
+};
+
+function base64(blob){
+  return new Promise(function(ok){ var r = new FileReader(); r.onload = function(){ ok(r.result.split(',')[1]); }; r.readAsDataURL(blob); });
+}
+
+// Invio
+$('invia').onclick = async function(){
+  var esito = $('esito'), errori = [];
+  if (!valore('momento')) errori.push('scegli mattina o pomeriggio');
+  if ($('bImpegno').classList.contains('vergine')) errori.push('sposta la barra Impegno');
+  if ($('bSento').classList.contains('vergine')) errori.push('sposta la barra Come mi sento');
+  if (valore('fastidi') === 'sì' && !valore('zona')) errori.push('indica dove hai il fastidio');
+  var all = $('allenatore').value === '__nuovo' ? $('aggAll').value.trim() : $('allenatore').value;
+  if (!all) errori.push("scrivi il nome dell'allenatore");
+  if (mediaRec && mediaRec.state === 'recording') errori.push('ferma prima la registrazione');
+  if (errori.length){ esito.innerHTML = '<span class="err">Manca: ' + errori.join(', ') + '.</span>'; return; }
+
+  var durata = valore('durata') === 'altro' ? ($('durataAltro').value.trim() || 'altro') : valore('durata');
+  var d = {
+    k: K, data: $('data').value, momento: valore('momento'), tipo: valore('tipo'), durata: durata,
+    allenatore: all,
+    compagni: [].filter.call($('compagni').children, function(c){ return c.classList.contains('on'); }).map(function(c){ return c.dataset.v; }),
+    impegno: +$('bImpegno').querySelector('input').value,
+    comeMiSento: +$('bSento').querySelector('input').value,
+    fastidi: valore('fastidi'), zona: valore('fastidi') === 'sì' ? valore('zona') : '',
+    notaFastidio: valore('fastidi') === 'sì' ? $('notaFastidio').value.trim() : '',
+    lavorato: $('lavorato').value.trim(), bene: $('bene').value.trim(), migliorare: $('migliorare').value.trim(),
+    eserciziTesto: $('eserciziTesto').value.trim()
+  };
+  var btn = this; btn.disabled = true; btn.textContent = 'Invio in corso...'; esito.textContent = '';
+  try {
+    if (audioBlob){ d.audio = await base64(audioBlob); d.mime = audioBlob.type || 'audio/mp4'; }
+    var r = await fetch(URL_SCRIPT, {method:'POST', body: JSON.stringify(d)});
+    var res = await r.json();
+    if (!res.ok) throw new Error(res.errore || 'errore');
+    esito.innerHTML = '<span class="ok">Sessione registrata. Grazie!</span>';
+    azzera();
+  } catch(e){
+    esito.innerHTML = '<span class="err">Invio non riuscito: ' + e.message + '. Riprova.</span>';
+  }
+  btn.disabled = false; btn.textContent = 'Invia';
+};
+
+function azzera(){
+  ['lavorato','bene','migliorare','eserciziTesto','notaFastidio','durataAltro','aggAll'].forEach(function(id){ $(id).value = ''; });
+  [].forEach.call(document.querySelectorAll('#momento .chip, #zona .chip, #compagni .chip'), function(c){ c.classList.remove('on'); });
+  ['bImpegno','bSento'].forEach(function(id){ $(id).classList.add('vergine'); $(id).querySelector('input').value = 50; });
+  $('fastidi').querySelectorAll('.chip')[0].click();
+  $('tipo').querySelector('[data-v="gruppo"]').click();
+  $('durata').querySelector('[data-v="1h30"]').click();
+  $('allenatore').value = 'Kitu'; $('aggAllRiga').classList.add('nascosto');
+  $('cancAudio').onclick();
+  $('data').value = oggi();
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
