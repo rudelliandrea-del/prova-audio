@@ -23,6 +23,16 @@
   .duo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .duo .chip{border-radius:10px;padding:14px;text-align:center;font-size:16px}
   .nascosto{display:none!important}
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#e6e6e3;border-radius:12px;padding:4px;margin:6px 0 4px}
+  .tab{border:0;border-radius:9px;padding:11px;font-size:15px;background:transparent;color:var(--testo)}
+  .tab.on{background:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+  .griglia{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .unita{display:flex;align-items:center;gap:6px}
+  .unita input{min-width:0;flex:1;width:100%;font-size:16px;padding:11px;border:1px solid var(--bordo);border-radius:10px;font-family:inherit;color:var(--testo);background:#fff}
+  .unita span{color:var(--grigio);font-size:14px;flex:none}
+  #inviaGiorno{width:100%;border:0;border-radius:14px;padding:17px;font-size:18px;font-weight:600;color:#fff;background:var(--verde);margin-top:6px}
+  #inviaGiorno:disabled{background:#9bbfa4}
+  #esitoGiorno{margin-top:12px;font-size:15px;text-align:center}
   .riga-agg{display:flex;gap:8px;margin-top:8px}
   .riga-agg input{flex:1}
   .btn{border:0;border-radius:10px;padding:11px 14px;font-size:15px;background:#e8e8e6;color:var(--testo)}
@@ -49,7 +59,13 @@
 
 <div id="app">
 <h1>Registro allenamenti</h1>
-<div class="sotto">Una scheda per ogni sessione</div>
+<div class="sotto">Filippo · Future Padel Academy</div>
+<div class="tabs">
+  <button type="button" class="tab on" data-v="sess">Sessione</button>
+  <button type="button" class="tab" data-v="giorno">Dati del giorno</button>
+</div>
+<div id="vistaSess">
+<div class="avviso" style="margin:2px 0 4px">Una scheda per ogni sessione.</div>
 
 <div class="card">
   <h2>Sessione</h2>
@@ -151,6 +167,34 @@
 
 <button type="button" id="invia">Invia</button>
 <div id="esito"></div>
+</div>
+
+<div id="vistaGiorno" class="nascosto">
+<div class="avviso" style="margin:2px 0 4px">Una volta al giorno, la sera. Copia i valori da Bevel.</div>
+<div class="card">
+  <label class="t">Data</label>
+  <input type="date" id="gData">
+
+  <div class="griglia">
+    <div><label class="t">Sforzo</label><div class="unita"><input type="number" inputmode="numeric" id="gSforzo" min="0" max="100" placeholder="es. 95"><span>%</span></div></div>
+    <div><label class="t">Recupero</label><div class="unita"><input type="number" inputmode="numeric" id="gRecupero" min="0" max="100" placeholder="es. 39"><span>%</span></div></div>
+  </div>
+
+  <label class="t">Ore di sonno</label>
+  <div class="griglia">
+    <div class="unita"><input type="number" inputmode="numeric" id="gOre" min="0" max="16" placeholder="7"><span>h</span></div>
+    <div class="unita"><input type="number" inputmode="numeric" id="gMin" min="0" max="59" placeholder="30"><span>min</span></div>
+  </div>
+
+  <div class="griglia">
+    <div><label class="t">Battito a riposo</label><div class="unita"><input type="number" inputmode="numeric" id="gBattito" min="30" max="120" placeholder="es. 52"><span>bpm</span></div></div>
+    <div><label class="t">Stress medio</label><div class="unita"><input type="number" inputmode="numeric" id="gStress" min="0" max="100" placeholder="es. 24"></div></div>
+  </div>
+  <div class="avviso">Sforzo e recupero sono obbligatori. Se un valore non c'è, lascia vuoto.</div>
+</div>
+<button type="button" id="inviaGiorno">Invia dati del giorno</button>
+<div id="esitoGiorno"></div>
+</div>
 </div>
 
 <script>
@@ -306,6 +350,50 @@ function azzera(){
   $('data').value = oggi();
   window.scrollTo(0,0);
 }
+
+// ---- Schede: sessione / dati del giorno ----
+[].forEach.call(document.querySelectorAll('.tab'), function(t){
+  t.onclick = function(){
+    [].forEach.call(document.querySelectorAll('.tab'), function(x){ x.classList.remove('on'); });
+    t.classList.add('on');
+    $('vistaSess').classList.toggle('nascosto', t.dataset.v !== 'sess');
+    $('vistaGiorno').classList.toggle('nascosto', t.dataset.v !== 'giorno');
+    window.scrollTo(0,0);
+  };
+});
+$('gData').value = oggi();
+
+function num(id, min, max){
+  var v = $(id).value.trim(); if (v === '') return '';
+  var n = Number(v.replace(',', '.'));
+  if (isNaN(n) || n < min || n > max) throw new Error(id);
+  return n;
+}
+var NOMI = {gSforzo:'Sforzo (0-100)', gRecupero:'Recupero (0-100)', gOre:'Ore di sonno', gMin:'Minuti di sonno (0-59)', gBattito:'Battito a riposo', gStress:'Stress medio (0-100)'};
+
+$('inviaGiorno').onclick = async function(){
+  var esito = $('esitoGiorno'), d;
+  try {
+    var ore = num('gOre', 0, 16), min = num('gMin', 0, 59);
+    d = { k: K, tipoEnvio: 'giorno', data: $('gData').value,
+          sforzo: num('gSforzo', 0, 100), recupero: num('gRecupero', 0, 100),
+          sonnoOre: (ore === '' && min === '') ? '' : Math.round(((+ore || 0) + (+min || 0) / 60) * 100) / 100,
+          battito: num('gBattito', 30, 120), stress: num('gStress', 0, 100) };
+  } catch(e){ esito.innerHTML = '<span class="err">Controlla il valore: ' + (NOMI[e.message] || e.message) + '.</span>'; return; }
+  if (!d.data){ esito.innerHTML = '<span class="err">Manca la data.</span>'; return; }
+  if (d.sforzo === '' || d.recupero === ''){ esito.innerHTML = '<span class="err">Manca: sforzo e recupero.</span>'; return; }
+  var btn = this; btn.disabled = true; btn.textContent = 'Invio in corso...'; esito.textContent = '';
+  try {
+    var r = await fetch(URL_SCRIPT, {method:'POST', body: JSON.stringify(d)});
+    var res = await r.json();
+    if (!res.ok) throw new Error(res.errore || 'errore');
+    esito.innerHTML = '<span class="ok">' + (res.aggiornato ? 'Dati del giorno aggiornati.' : 'Dati del giorno registrati.') + ' Grazie!</span>';
+    ['gSforzo','gRecupero','gOre','gMin','gBattito','gStress'].forEach(function(id){ $(id).value = ''; });
+  } catch(e){
+    esito.innerHTML = '<span class="err">Invio non riuscito: ' + e.message + '. Riprova.</span>';
+  }
+  btn.disabled = false; btn.textContent = 'Invia dati del giorno';
+};
 </script>
 </body>
 </html>
