@@ -187,8 +187,13 @@
   </div>
 
   <div class="griglia">
-    <div><label class="t">Battito a riposo</label><div class="unita"><input type="number" inputmode="numeric" id="gBattito" min="30" max="120" placeholder="es. 52"><span>bpm</span></div></div>
+    <div><label class="t">FC a riposo</label><div class="unita"><input type="number" inputmode="numeric" id="gBattito" min="30" max="120" placeholder="es. 55"><span>bpm</span></div></div>
+    <div><label class="t">VFC a riposo</label><div class="unita"><input type="text" inputmode="decimal" id="gVfc" placeholder="es. 62,6"><span>ms</span></div></div>
+  </div>
+
+  <div class="griglia">
     <div><label class="t">Stress medio</label><div class="unita"><input type="number" inputmode="numeric" id="gStress" min="0" max="100" placeholder="es. 24"></div></div>
+    <div></div>
   </div>
   <div class="avviso">Sforzo e recupero sono obbligatori. Se un valore non c'è, lascia vuoto.</div>
 </div>
@@ -369,7 +374,7 @@ function num(id, min, max){
   if (isNaN(n) || n < min || n > max) throw new Error(id);
   return n;
 }
-var NOMI = {gSforzo:'Sforzo (0-100)', gRecupero:'Recupero (0-100)', gOre:'Ore di sonno', gMin:'Minuti di sonno (0-59)', gBattito:'Battito a riposo', gStress:'Stress medio (0-100)'};
+var NOMI = {gSforzo:'Sforzo (0-100)', gRecupero:'Recupero (0-100)', gOre:'Ore di sonno', gMin:'Minuti di sonno (0-59)', gBattito:'FC a riposo', gStress:'Stress medio (0-100)', gVfc:'VFC a riposo'};
 
 $('inviaGiorno').onclick = async function(){
   var esito = $('esitoGiorno'), d;
@@ -378,7 +383,7 @@ $('inviaGiorno').onclick = async function(){
     d = { k: K, tipoEnvio: 'giorno', data: $('gData').value,
           sforzo: num('gSforzo', 0, 100), recupero: num('gRecupero', 0, 100),
           sonnoOre: (ore === '' && min === '') ? '' : Math.round(((+ore || 0) + (+min || 0) / 60) * 100) / 100,
-          battito: num('gBattito', 30, 120), stress: num('gStress', 0, 100) };
+          battito: num('gBattito', 30, 120), stress: num('gStress', 0, 100), vfc: num('gVfc', 5, 300) };
   } catch(e){ esito.innerHTML = '<span class="err">Controlla il valore: ' + (NOMI[e.message] || e.message) + '.</span>'; return; }
   if (!d.data){ esito.innerHTML = '<span class="err">Manca la data.</span>'; return; }
   if (d.sforzo === '' || d.recupero === ''){ esito.innerHTML = '<span class="err">Manca: sforzo e recupero.</span>'; return; }
@@ -388,7 +393,7 @@ $('inviaGiorno').onclick = async function(){
     var res = await r.json();
     if (!res.ok) throw new Error(res.errore || 'errore');
     esito.innerHTML = '<span class="ok">' + (res.aggiornato ? 'Dati del giorno aggiornati.' : 'Dati del giorno registrati.') + ' Grazie!</span>';
-    ['gSforzo','gRecupero','gOre','gMin','gBattito','gStress'].forEach(function(id){ $(id).value = ''; });
+    ['gSforzo','gRecupero','gOre','gMin','gBattito','gStress','gVfc'].forEach(function(id){ $(id).value = ''; });
   } catch(e){
     esito.innerHTML = '<span class="err">Invio non riuscito: ' + e.message + '. Riprova.</span>';
   }
